@@ -58,6 +58,8 @@ void setup() {
     playWelcome();
 
     delay(3000);
+
+    printScore();
 }
 
 
@@ -67,9 +69,6 @@ void setup() {
 
 void loop() {
     checkButtons();
-    printScore();
-
-    delay(100);
 }
 
 
@@ -181,6 +180,7 @@ void checkButtons()
     if (newButtonState != firstButtonState && newButtonState == HIGH) {
         // Se o botão mudou de estado e o novo estado é pressionado, soma um ponto
         firstPlayerScore++;
+        printScore();
         playFeedback();
     }
     firstButtonState = newButtonState;
@@ -189,6 +189,7 @@ void checkButtons()
     if (newButtonState != secondButtonState && newButtonState == HIGH) {
         // Se o botão mudou de estado e o novo estado é pressionado, soma um ponto
         secondPlayerScore++;
+        printScore();
         playFeedback();
     }
     secondButtonState = newButtonState;
