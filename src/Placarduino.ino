@@ -1,18 +1,17 @@
-#include <LiquidCrystal.h>
+#include <Arduino.h>
+#include <LiquidCrystal_I2C.h>
 #include <Tone.h>
 
 /*
  * CONSTANTES
  */
 
-// Configurações de pinos
-#define PIN_LCD_D7        8
-#define PIN_LCD_D6        9
-#define PIN_LCD_D5       10
-#define PIN_LCD_D4       11
-#define PIN_LCD_EN       12
-#define PIN_LCD_RS       13
+// Configurações do LCD
+#define LCD_I2C_ADDR   0x3F
+#define LCD_COLS         20
+#define LCD_ROWS          4
 
+// Configurações de pinos
 #define PIN_BTN_1         7
 #define PIN_BTN_2         6
 
@@ -22,15 +21,8 @@
  * GLOBAIS
  */
 
-// Inicializa o objeto LCD configurando os pinos de comunicação
-LiquidCrystal lcd(
-    PIN_LCD_RS,
-    PIN_LCD_EN,
-    PIN_LCD_D4,
-    PIN_LCD_D5,
-    PIN_LCD_D6,
-    PIN_LCD_D7
-);
+// Inicializa o objeto LCD configurando o endereço de comunicação e tamanho
+LiquidCrystal_I2C lcd(LCD_I2C_ADDR, LCD_COLS, LCD_ROWS);
 
 // Configurações dos jogadores e placar
 const char firstPlayerName[] = "Jogador 1";
@@ -84,8 +76,8 @@ void setupInputs()
 
 void setupLCD()
 {
-    // Configura o tamanho do LCD: 16 colunas e 2 linhas
-    lcd.begin(16, 2);
+    lcd.init();
+    lcd.backlight();
 }
 
 void setupBuzzer()
@@ -97,12 +89,12 @@ void printWelcome()
 {
     lcd.clear();
 
-    // Posiciona o cursor na primeira coluna da primeira linha
-    lcd.setCursor(0, 0);
-    lcd.print("PLACARDUINO v1.0");
-
     // Posiciona o cursor na terceira coluna da segunda linha
     lcd.setCursor(2, 1);
+    lcd.print("PLACARDUINO v1.0");
+
+    // Posiciona o cursor na quinta coluna da terceira linha
+    lcd.setCursor(4, 2);
     lcd.print("a.k.a. DAMN");
 }
 
