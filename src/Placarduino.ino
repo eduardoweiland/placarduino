@@ -2,6 +2,8 @@
 #include <LiquidCrystal_I2C.h>
 #include <Tone.h>
 
+#include "LcdBigNumbers.h"
+
 /*
  * CONSTANTES
  */
@@ -23,6 +25,7 @@
 
 // Inicializa o objeto LCD configurando o endereço de comunicação e tamanho
 LiquidCrystal_I2C lcd(LCD_I2C_ADDR, LCD_COLS, LCD_ROWS);
+LcdBigNumbers bigNumbers(&lcd);
 
 // Configurações dos jogadores e placar
 const char firstPlayerName[] = "Jogador 1";
@@ -77,6 +80,8 @@ void setupInputs()
 void setupLCD()
 {
     lcd.init();
+    bigNumbers.init();
+
     lcd.backlight();
 }
 
@@ -189,21 +194,25 @@ void checkButtons()
 
 void printScore()
 {
-    // Buffer para saída do dtostrf
-    // Usado para formatar os pontos alinhados à direita
-    char outScore[4];
-
     lcd.clear();
 
     lcd.setCursor(0, 0);
     lcd.print(firstPlayerName);
-    lcd.setCursor(13, 0);
-    lcd.print(dtostrf(firstPlayerScore, 3, 0, outScore));
 
-    lcd.setCursor(0, 1);
+    // Alinha o nome do jogador à direita
+    lcd.setCursor(LCD_COLS - strlen(secondPlayerName), 0);
     lcd.print(secondPlayerName);
-    lcd.setCursor(13, 1);
-    lcd.print(dtostrf(secondPlayerScore, 3, 0, outScore));
+
+    bigNumbers.printNumber(firstPlayerScore, 0, 1);
+
+    // Altera coluna inicial de acordo com valor da pontuação para
+    // manter alinhado à direita
+    if (secondPlayerScore >= 10) {
+        bigNumbers.printNumber(secondPlayerScore, LCD_COLS - 7, 1);
+    }
+    else {
+        bigNumbers.printNumber(secondPlayerScore, LCD_COLS - 3, 1);
+    }
 }
 
 void playFeedback()
