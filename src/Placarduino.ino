@@ -14,10 +14,12 @@
 #define LCD_ROWS          4
 
 // Configurações de pinos
-#define PIN_BTN_1         7
-#define PIN_BTN_2         6
+#define PIN_BTN_SUB_PL1   7
+#define PIN_BTN_ADD_PL1   6
+#define PIN_BTN_SUB_PL2   5
+#define PIN_BTN_ADD_PL2   4
 
-#define PIN_BUZZER        5
+#define PIN_BUZZER        3
 
 /*
  * GLOBAIS
@@ -29,12 +31,14 @@ LcdBigNumbers bigNumbers(&lcd);
 
 // Configurações dos jogadores e placar
 const char firstPlayerName[] = "Jogador 1";
-unsigned int firstPlayerScore = 0;
-int firstButtonState = LOW;
+int firstPlayerScore = 0;
+int subPlayer1ButtonState = LOW;
+int addPlayer1ButtonState = LOW;
 
 const char secondPlayerName[] = "Jogador 2";
-unsigned int secondPlayerScore = 0;
-int secondButtonState = LOW;
+int secondPlayerScore = 0;
+int subPlayer2ButtonState = LOW;
+int addPlayer2ButtonState = LOW;
 
 // Objeto para controle de um buzzer
 Tone buzzer;
@@ -73,8 +77,10 @@ void loop() {
 
 void setupInputs()
 {
-    pinMode(PIN_BTN_1, INPUT);
-    pinMode(PIN_BTN_2, INPUT);
+    pinMode(PIN_BTN_SUB_PL1, INPUT);
+    pinMode(PIN_BTN_ADD_PL1, INPUT);
+    pinMode(PIN_BTN_SUB_PL2, INPUT);
+    pinMode(PIN_BTN_ADD_PL2, INPUT);
 }
 
 void setupLCD()
@@ -169,27 +175,28 @@ void playWelcome()
 //    delay(260);
 //}
 
+void checkScoreInput(int inputPin, int *stateStore, int *scoreStore, int op, void(*feedbackFunction)())
+{
+    int newButtonState = digitalRead(inputPin);
+
+    if (newButtonState != *stateStore && newButtonState == HIGH) {
+        // Placar não deve ficar negativo, então a operação só é feita se o placar for continuar >= 0
+        if (*scoreStore + op >= 0) {
+            *scoreStore += op;
+            printScore();
+            feedbackFunction();
+        }
+    }
+
+    *stateStore = newButtonState;
+}
+
 void checkButtons()
 {
-    int newButtonState;
-
-    newButtonState = digitalRead(PIN_BTN_1);
-    if (newButtonState != firstButtonState && newButtonState == HIGH) {
-        // Se o botão mudou de estado e o novo estado é pressionado, soma um ponto
-        firstPlayerScore++;
-        printScore();
-        playFeedback();
-    }
-    firstButtonState = newButtonState;
-
-    newButtonState = digitalRead(PIN_BTN_2);
-    if (newButtonState != secondButtonState && newButtonState == HIGH) {
-        // Se o botão mudou de estado e o novo estado é pressionado, soma um ponto
-        secondPlayerScore++;
-        printScore();
-        playFeedback();
-    }
-    secondButtonState = newButtonState;
+    checkScoreInput(PIN_BTN_ADD_PL1, &addPlayer1ButtonState, &firstPlayerScore, +1, playFeedbackPositive);
+    checkScoreInput(PIN_BTN_SUB_PL1, &subPlayer1ButtonState, &firstPlayerScore, -1, playFeedbackNegative);
+    checkScoreInput(PIN_BTN_ADD_PL2, &addPlayer2ButtonState, &secondPlayerScore, +1, playFeedbackPositive);
+    checkScoreInput(PIN_BTN_SUB_PL2, &subPlayer2ButtonState, &secondPlayerScore, -1, playFeedbackNegative);
 }
 
 void printScore()
@@ -215,11 +222,20 @@ void printScore()
     }
 }
 
-void playFeedback()
+void playFeedbackPositive()
 {
     buzzer.play(NOTE_C6, 120);
     delay(140);
 
     buzzer.play(NOTE_C7, 420);
+    delay(500);
+}
+
+void playFeedbackNegative()
+{
+    buzzer.play(NOTE_C7, 120);
+    delay(140);
+
+    buzzer.play(NOTE_C6, 420);
     delay(500);
 }
