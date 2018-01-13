@@ -4,6 +4,7 @@
 
 #include "LcdBigNumbers.h"
 #include "MusicPlayer.h"
+#include "PlayerControl.h"
 
 /*
  * CONSTANTES
@@ -31,15 +32,8 @@ LiquidCrystal_I2C lcd(LCD_I2C_ADDR, LCD_COLS, LCD_ROWS);
 LcdBigNumbers bigNumbers(&lcd);
 
 // Configurações dos jogadores e placar
-const char firstPlayerName[] = "Jogador 1";
-int firstPlayerScore = 0;
-int subPlayer1ButtonState = LOW;
-int addPlayer1ButtonState = LOW;
-
-const char secondPlayerName[] = "Jogador 2";
-int secondPlayerScore = 0;
-int subPlayer2ButtonState = LOW;
-int addPlayer2ButtonState = LOW;
+PlayerControl player1(PIN_BTN_ADD_PL1, PIN_BTN_SUB_PL1);
+PlayerControl player2(PIN_BTN_ADD_PL2, PIN_BTN_SUB_PL2);
 
 // Objeto para controle de um buzzer
 Tone buzzer;
@@ -52,6 +46,9 @@ MusicPlayer musicPlayer(&buzzer);
 
 void setup()
 {
+    player1.setName("Jogador 1");
+    player2.setName("Jogador 2");
+
     setupInputs();
     setupLCD();
     setupBuzzer();
@@ -59,7 +56,7 @@ void setup()
     printWelcome();
     playWelcome();
 
-    delay(3000);
+    delay(1000);
 
     printScore();
 }
@@ -118,28 +115,19 @@ void playWelcome()
     musicPlayer.cMajorScale();
 }
 
-void checkScoreInput(int inputPin, int *stateStore, int *scoreStore, int op, void(*feedbackFunction)())
-{
-    int newButtonState = digitalRead(inputPin);
-
-    if (newButtonState != *stateStore && newButtonState == HIGH) {
-        // Placar não deve ficar negativo, então a operação só é feita se o placar for continuar >= 0
-        if (*scoreStore + op >= 0) {
-            *scoreStore += op;
-            printScore();
-            feedbackFunction();
-        }
-    }
-
-    *stateStore = newButtonState;
-}
-
 void checkButtons()
 {
-    checkScoreInput(PIN_BTN_ADD_PL1, &addPlayer1ButtonState, &firstPlayerScore, +1, playFeedbackPositive);
-    checkScoreInput(PIN_BTN_SUB_PL1, &subPlayer1ButtonState, &firstPlayerScore, -1, playFeedbackNegative);
-    checkScoreInput(PIN_BTN_ADD_PL2, &addPlayer2ButtonState, &secondPlayerScore, +1, playFeedbackPositive);
-    checkScoreInput(PIN_BTN_SUB_PL2, &subPlayer2ButtonState, &secondPlayerScore, -1, playFeedbackNegative);
+    int player1Changed = player1.updateScore();
+    int player2Changed = player2.updateScore();
+
+    if (player1Changed > 0 || player2Changed > 0) {
+        printScore();
+        playFeedbackPositive();
+    }
+    else if (player1Changed < 0 || player2Changed < 0) {
+        printScore();
+        playFeedbackNegative();
+    }
 }
 
 void printScore()
@@ -147,21 +135,21 @@ void printScore()
     lcd.clear();
 
     lcd.setCursor(0, 0);
-    lcd.print(firstPlayerName);
+    lcd.print(player1.getName());
 
     // Alinha o nome do jogador à direita
-    lcd.setCursor(LCD_COLS - strlen(secondPlayerName), 0);
-    lcd.print(secondPlayerName);
+    lcd.setCursor(LCD_COLS - strlen(player2.getName()), 0);
+    lcd.print(player1.getName());
 
-    bigNumbers.printNumber(firstPlayerScore, 0, 1);
+    bigNumbers.printNumber(player1.getScore(), 0, 1);
 
     // Altera coluna inicial de acordo com valor da pontuação para
     // manter alinhado à direita
-    if (secondPlayerScore >= 10) {
-        bigNumbers.printNumber(secondPlayerScore, LCD_COLS - 7, 1);
+    if (player2.getScore() >= 10) {
+        bigNumbers.printNumber(player2.getScore(), LCD_COLS - 7, 1);
     }
     else {
-        bigNumbers.printNumber(secondPlayerScore, LCD_COLS - 3, 1);
+        bigNumbers.printNumber(player2.getScore(), LCD_COLS - 3, 1);
     }
 }
 
