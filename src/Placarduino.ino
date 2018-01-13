@@ -3,6 +3,7 @@
 #include <Tone.h>
 
 #include "LcdBigNumbers.h"
+#include "MusicPlayer.h"
 
 /*
  * CONSTANTES
@@ -42,13 +43,15 @@ int addPlayer2ButtonState = LOW;
 
 // Objeto para controle de um buzzer
 Tone buzzer;
+MusicPlayer musicPlayer(&buzzer);
 
 
 /*
  * SETUP
  */
 
-void setup() {
+void setup()
+{
     setupInputs();
     setupLCD();
     setupBuzzer();
@@ -66,7 +69,8 @@ void setup() {
  * LOOP
  */
 
-void loop() {
+void loop()
+{
     checkButtons();
 }
 
@@ -109,71 +113,10 @@ void printWelcome()
     lcd.print("a.k.a. DAMN");
 }
 
-// Escala de Dó maior
 void playWelcome()
 {
-    // Básico
-    int i;
-    int notes[] = { NOTE_C6, NOTE_D6, NOTE_E6, NOTE_F6, NOTE_G6, NOTE_A6, NOTE_B6, NOTE_C7 };
-
-    for (i = 0; i < 8; ++i) {
-        buzzer.play(notes[i], 30 + (i * 5));
-        delay(35 + (i * 5));
-    }
+    musicPlayer.cMajorScale();
 }
-
-// Super Mário
-//void playWelcome()
-//{
-//    buzzer.play(NOTE_E6, 120);
-//    delay(140);
-//    buzzer.play(NOTE_E6, 120);
-//    delay(140);
-//    delay(140);
-//    buzzer.play(NOTE_E6, 120);
-//    delay(140);
-//    delay(140);
-//    buzzer.play(NOTE_C6, 120);
-//    delay(140);
-//    buzzer.play(NOTE_E6, 240);
-//    delay(260);
-//    buzzer.play(NOTE_G6, 240);
-//    delay(260);
-//    delay(260);
-//    buzzer.play(NOTE_G5, 240);
-//    delay(260);
-//}
-
-// Sweet Child O' Mine
-//void playWelcome()
-//{
-//    int i, j;
-//    int firstNote[] = { NOTE_CS5, NOTE_DS5, NOTE_FS5 };
-//
-//    for (i = 0; i < 3; ++i) {
-//        for (j = 0; j < 2; ++j) {
-//            buzzer.play(firstNote[i], 240);
-//            delay(260);
-//            buzzer.play(NOTE_CS6, 240);
-//            delay(260);
-//            buzzer.play(NOTE_GS5, 240);
-//            delay(260);
-//            buzzer.play(NOTE_FS5, 240);
-//            delay(260);
-//            buzzer.play(NOTE_FS6, 240);
-//            delay(260);
-//            buzzer.play(NOTE_GS5, 240);
-//            delay(260);
-//            buzzer.play(NOTE_F6, 240);
-//            delay(260);
-//            buzzer.play(NOTE_GS5, 240);
-//            delay(260);
-//        }
-//    }
-//
-//    buzzer.play(NOTE_CS5, 240);
-//    delay(260);
-//}
 
 void checkScoreInput(int inputPin, int *stateStore, int *scoreStore, int op, void(*feedbackFunction)())
 {
@@ -224,18 +167,12 @@ void printScore()
 
 void playFeedbackPositive()
 {
-    buzzer.play(NOTE_C6, 120);
-    delay(140);
-
-    buzzer.play(NOTE_C7, 420);
-    delay(500);
+    musicPlayer.playNote(NOTE_C6, 140);
+    musicPlayer.playNote(NOTE_C7, 480);
 }
 
 void playFeedbackNegative()
 {
-    buzzer.play(NOTE_C7, 120);
-    delay(140);
-
-    buzzer.play(NOTE_C6, 420);
-    delay(500);
+    musicPlayer.playNote(NOTE_C7, 140);
+    musicPlayer.playNote(NOTE_C6, 480);
 }
