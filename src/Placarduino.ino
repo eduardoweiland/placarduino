@@ -139,7 +139,7 @@ void printScore()
 
     // Alinha o nome do jogador à direita
     lcd.setCursor(LCD_COLS - strlen(player2.getName()), 0);
-    lcd.print(player1.getName());
+    lcd.print(player2.getName());
 
     bigNumbers.printNumber(player1.getScore(), 0, 1);
 
