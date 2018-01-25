@@ -1,10 +1,14 @@
 #include <Arduino.h>
 #include <LiquidCrystal_I2C.h>
 #include <Tone.h>
+#include <string.h>
 
 #include "LcdBigNumbers.h"
 #include "MusicPlayer.h"
+#include "SmartCard.h"
+
 #include "PlayerControl.h"
+#include "PlayerCard.h"
 
 /*
  * CONSTANTES
@@ -16,6 +20,9 @@
 #define LCD_ROWS          4
 
 // Configurações de pinos
+#define PIN_RFID_SS      10
+#define PIN_RFID_RESET    9
+
 #define PIN_BTN_SUB_PL1   7
 #define PIN_BTN_ADD_PL1   6
 #define PIN_BTN_SUB_PL2   5
@@ -34,6 +41,12 @@ LcdBigNumbers bigNumbers(&lcd);
 // Configurações dos jogadores e placar
 PlayerControl player1(PIN_BTN_ADD_PL1, PIN_BTN_SUB_PL1);
 PlayerControl player2(PIN_BTN_ADD_PL2, PIN_BTN_SUB_PL2);
+
+// Leitor RFID
+byte rfidKey[] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
+SmartCard smartCard(rfidKey, PIN_RFID_SS, PIN_RFID_RESET);
+PlayerCard playerCard(&smartCard, 1);
+PlayerControl *playerToConfigure = &player1;
 
 // Objeto para controle de um buzzer
 Tone buzzer;
@@ -59,6 +72,10 @@ void setup()
     delay(1000);
 
     printScore();
+
+    smartCard.begin();
+
+    Serial.begin(9600);
 }
 
 
@@ -68,9 +85,9 @@ void setup()
 
 void loop()
 {
+    readPlayerCard();
     checkButtons();
 }
-
 
 /*
  * FUNÇÕES
@@ -112,7 +129,7 @@ void printWelcome()
 
 void playWelcome()
 {
-    musicPlayer.cMajorScale();
+    musicPlayer.superMarioTheme();
 }
 
 void checkButtons()
@@ -150,6 +167,20 @@ void printScore()
     }
     else {
         bigNumbers.printNumber(player2.getScore(), LCD_COLS - 3, 1);
+    }
+}
+
+void readPlayerCard()
+{
+    if (playerCard.readPlayerNameFromCard(playerToConfigure)) {
+        if (playerToConfigure == &player1) {
+            playerToConfigure = &player2;
+        }
+        else {
+            playerToConfigure = &player1;
+        }
+
+        printScore();
     }
 }
 
