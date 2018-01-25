@@ -120,7 +120,7 @@ void printWelcome()
 
     // Posiciona o cursor na terceira coluna da segunda linha
     lcd.setCursor(2, 1);
-    lcd.print("PLACARDUINO v1.0");
+    lcd.print("PLACARDUINO v2.0");
 
     // Posiciona o cursor na quinta coluna da terceira linha
     lcd.setCursor(4, 2);
