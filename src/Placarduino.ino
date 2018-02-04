@@ -15,6 +15,8 @@
  * CONSTANTES
  */
 
+#define PLACARDUINO_VERSION   "v2.1"
+
 // Configurações do LCD
 #define LCD_I2C_ADDR   0x3F
 #define LCD_COLS         20
@@ -134,7 +136,7 @@ void printWelcome()
 
     // Posiciona o cursor na terceira coluna da segunda linha
     lcd.setCursor(2, 1);
-    lcd.print("PLACARDUINO v2.0");
+    lcd.print("PLACARDUINO " PLACARDUINO_VERSION);
 
     // Posiciona o cursor na quinta coluna da terceira linha
     lcd.setCursor(4, 2);
