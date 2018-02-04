@@ -5,6 +5,7 @@
 
 #include "LcdBigNumbers.h"
 #include "MusicPlayer.h"
+#include "RisingEdgeButton.h"
 #include "SmartCard.h"
 
 #include "PlayerControl.h"
@@ -22,6 +23,8 @@
 // Configurações de pinos
 #define PIN_RFID_SS      10
 #define PIN_RFID_RESET    9
+
+#define PIN_BTN_GAME_OVER 8
 
 #define PIN_BTN_SUB_PL1   7
 #define PIN_BTN_ADD_PL1   6
@@ -47,6 +50,9 @@ byte rfidKey[] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
 SmartCard smartCard(rfidKey, PIN_RFID_SS, PIN_RFID_RESET);
 PlayerCard playerCard(&smartCard, 1);
 PlayerControl *playerToConfigure = &player1;
+
+RisingEdgeButton gameOverButton(PIN_BTN_GAME_OVER);
+bool isGameOver = false;
 
 // Objeto para controle de um buzzer
 Tone buzzer;
@@ -85,8 +91,16 @@ void setup()
 
 void loop()
 {
+    if (isGameOver) {
+        return;
+    }
+
     readPlayerCard();
     checkButtons();
+
+    if (gameOverButton.pressed()) {
+        gameOver();
+    }
 }
 
 /*
@@ -194,4 +208,54 @@ void playFeedbackNegative()
 {
     musicPlayer.playNote(NOTE_C7, 140);
     musicPlayer.playNote(NOTE_C6, 480);
+}
+
+void gameOver()
+{
+    bool hasWinner = false;
+    const char *winnerName;
+    size_t winnerNameLength;
+
+    isGameOver = true;
+    lcd.clear();
+
+    if (player1.getScore() > player2.getScore()) {
+        winnerName = player1.getName();
+        hasWinner = true;
+    }
+    else if (player2.getScore() > player1.getScore()) {
+        winnerName = player2.getName();
+        hasWinner = true;
+    }
+
+    if (!hasWinner) {
+        lcd.setCursor(7, 1);
+        lcd.print("EMPATE");
+    }
+    else {
+        // \o/
+        lcd.setCursor(1, 1); lcd.write(255);
+        lcd.setCursor(1, 2); lcd.write(255);
+        lcd.setCursor(2, 3); lcd.write(255);
+
+        lcd.setCursor(3, 2); lcd.write(0);
+        lcd.setCursor(4, 2); lcd.write(4);
+        lcd.setCursor(5, 2); lcd.write(1);
+        lcd.setCursor(3, 3); lcd.write(2);
+        lcd.setCursor(4, 3); lcd.write(5);
+        lcd.setCursor(5, 3); lcd.write(3);
+
+        lcd.setCursor(7, 1); lcd.write(255);
+        lcd.setCursor(7, 2); lcd.write(255);
+        lcd.setCursor(6, 3); lcd.write(255);
+
+        winnerNameLength = strnlen(winnerName, PlayerControl::MAX_NAME_LENGTH);
+        lcd.setCursor(9 + (11 - winnerNameLength) / 2, 1);
+        lcd.print(winnerName);
+
+        lcd.setCursor(11, 2);
+        lcd.print("GANHOU!");
+
+        musicPlayer.victory();
+    }
 }

@@ -11,6 +11,7 @@ public:
     void cMajorScale();
     void superMarioTheme();
     void sweetChildOMine();
+    void victory();
 
     void playNote(uint16_t frequency, uint32_t duration);
     void pause(uint32_t duration);

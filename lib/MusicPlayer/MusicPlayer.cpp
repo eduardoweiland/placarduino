@@ -63,3 +63,14 @@ void MusicPlayer::sweetChildOMine()
 
     this->playNote(NOTE_CS5, 260);
 }
+
+void MusicPlayer::victory()
+{
+    this->playNote(NOTE_C6, 140);
+    this->playNote(NOTE_D6, 140);
+    this->playNote(NOTE_E6, 140);
+    this->playNote(NOTE_G6, 260);
+    this->pause(140);
+    this->playNote(NOTE_E6, 140);
+    this->playNote(NOTE_G6, 550);
+}
