@@ -2,6 +2,7 @@
 #include <LiquidCrystal_I2C.h>
 #include <Tone.h>
 #include <string.h>
+#include <avr/wdt.h>
 
 #include "LcdBigNumbers.h"
 #include "MusicPlayer.h"
@@ -54,7 +55,6 @@ PlayerCard playerCard(&smartCard, 1);
 PlayerControl *playerToConfigure = &player1;
 
 RisingEdgeButton gameOverButton(PIN_BTN_GAME_OVER);
-bool isGameOver = false;
 
 // Objeto para controle de um buzzer
 Tone buzzer;
@@ -67,6 +67,9 @@ MusicPlayer musicPlayer(&buzzer);
 
 void setup()
 {
+    MCUSR = 0;
+    wdt_disable();
+
     player1.setName("Jogador 1");
     player2.setName("Jogador 2");
 
@@ -93,10 +96,6 @@ void setup()
 
 void loop()
 {
-    if (isGameOver) {
-        return;
-    }
-
     readPlayerCard();
     checkButtons();
 
@@ -218,7 +217,6 @@ void gameOver()
     const char *winnerName;
     size_t winnerNameLength;
 
-    isGameOver = true;
     lcd.clear();
 
     if (player1.getScore() > player2.getScore()) {
@@ -260,4 +258,7 @@ void gameOver()
 
         musicPlayer.victory();
     }
+
+    wdt_enable(WDTO_4S);
+    while (1);
 }
