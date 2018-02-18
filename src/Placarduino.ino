@@ -16,7 +16,7 @@
  * CONSTANTES
  */
 
-#define PLACARDUINO_VERSION   "v2.1"
+#define PLACARDUINO_VERSION   "v2.2"
 
 // Configurações do LCD
 #define LCD_I2C_ADDR   0x3F
