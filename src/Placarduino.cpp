@@ -1,3 +1,5 @@
+#include "config.h"
+
 #include <Arduino.h>
 #include <LiquidCrystal_I2C.h>
 #include <Tone.h>
@@ -18,23 +20,8 @@
 
 #define PLACARDUINO_VERSION   "v2.2"
 
-// Configurações do LCD
-#define LCD_I2C_ADDR   0x3F
 #define LCD_COLS         20
 #define LCD_ROWS          4
-
-// Configurações de pinos
-#define PIN_RFID_SS      10
-#define PIN_RFID_RESET    9
-
-#define PIN_BTN_GAME_OVER 4
-
-#define PIN_BTN_SUB_PL1   5
-#define PIN_BTN_ADD_PL1   6
-#define PIN_BTN_SUB_PL2   8
-#define PIN_BTN_ADD_PL2   7
-
-#define PIN_BUZZER        3
 
 /*
  * GLOBAIS
@@ -49,8 +36,8 @@ PlayerControl player1(PIN_BTN_ADD_PL1, PIN_BTN_SUB_PL1);
 PlayerControl player2(PIN_BTN_ADD_PL2, PIN_BTN_SUB_PL2);
 
 // Leitor RFID
-byte rfidKey[] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
-SmartCard smartCard(rfidKey, PIN_RFID_SS, PIN_RFID_RESET);
+byte rfidKey[] = RFID_KEY;
+SmartCard smartCard(rfidKey, RFID_PIN_SS, RFID_PIN_RESET);
 PlayerCard playerCard(&smartCard, 1);
 PlayerControl *playerToConfigure = &player1;
 
