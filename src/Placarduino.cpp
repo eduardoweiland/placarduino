@@ -60,6 +60,17 @@ RisingEdgeButton gameOverButton(PIN_BTN_GAME_OVER);
 Tone buzzer;
 MusicPlayer musicPlayer(&buzzer);
 
+void setupInputs();
+void setupLCD();
+void setupBuzzer();
+void printWelcome();
+void playWelcome();
+void printScore();
+void readPlayerCard();
+void checkButtons();
+void gameOver();
+void playFeedbackPositive();
+void playFeedbackNegative();
 
 /*
  * SETUP
