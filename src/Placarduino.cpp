@@ -1,70 +1,29 @@
 #include "config.h"
+#include "Placarduino.hpp"
 
-#include <Arduino.h>
-#include <LiquidCrystal_I2C.h>
-#include <Tone.h>
 #include <string.h>
 #include <avr/wdt.h>
-
-#include "LcdBigNumbers.h"
-#include "MusicPlayer.h"
-#include "RisingEdgeButton.h"
-#include "SmartCard.h"
-
-#include "PlayerControl.h"
-#include "PlayerCard.h"
-
-/*
- * CONSTANTES
- */
 
 #define PLACARDUINO_VERSION   "v2.2"
 
 #define LCD_COLS         20
 #define LCD_ROWS          4
 
-/*
- * GLOBAIS
- */
+Placarduino::Placarduino() : App(),
+    lcd(LCD_I2C_ADDR, LCD_COLS, LCD_ROWS),
+    bigNumbers(&lcd),
+    player1(PIN_BTN_ADD_PL1, PIN_BTN_SUB_PL1),
+    player2(PIN_BTN_ADD_PL2, PIN_BTN_SUB_PL2),
+    rfidKey RFID_KEY,
+    smartCard(rfidKey, RFID_PIN_SS, RFID_PIN_RESET),
+    playerCard(&smartCard, 1),
+    gameOverButton(PIN_BTN_GAME_OVER),
+    musicPlayer(&buzzer),
+    playerToConfigure(&player1)
+{
+}
 
-// Inicializa o objeto LCD configurando o endereço de comunicação e tamanho
-LiquidCrystal_I2C lcd(LCD_I2C_ADDR, LCD_COLS, LCD_ROWS);
-LcdBigNumbers bigNumbers(&lcd);
-
-// Configurações dos jogadores e placar
-PlayerControl player1(PIN_BTN_ADD_PL1, PIN_BTN_SUB_PL1);
-PlayerControl player2(PIN_BTN_ADD_PL2, PIN_BTN_SUB_PL2);
-
-// Leitor RFID
-byte rfidKey[] = RFID_KEY;
-SmartCard smartCard(rfidKey, RFID_PIN_SS, RFID_PIN_RESET);
-PlayerCard playerCard(&smartCard, 1);
-PlayerControl *playerToConfigure = &player1;
-
-RisingEdgeButton gameOverButton(PIN_BTN_GAME_OVER);
-
-// Objeto para controle de um buzzer
-Tone buzzer;
-MusicPlayer musicPlayer(&buzzer);
-
-void setupInputs();
-void setupLCD();
-void setupBuzzer();
-void printWelcome();
-void playWelcome();
-void printScore();
-void readPlayerCard();
-void checkButtons();
-void gameOver();
-void playFeedbackPositive();
-void playFeedbackNegative();
-void printTime();
-
-/*
- * SETUP
- */
-
-void setup()
+void Placarduino::init()
 {
     MCUSR = 0;
     wdt_disable();
@@ -84,16 +43,10 @@ void setup()
     printScore();
 
     smartCard.begin();
-
     Serial.begin(9600);
 }
 
-
-/*
- * LOOP
- */
-
-void loop()
+void Placarduino::run()
 {
     readPlayerCard();
     checkButtons();
@@ -104,11 +57,7 @@ void loop()
     }
 }
 
-/*
- * FUNÇÕES
- */
-
-void setupInputs()
+void Placarduino::setupInputs()
 {
     pinMode(PIN_BTN_SUB_PL1, INPUT);
     pinMode(PIN_BTN_ADD_PL1, INPUT);
@@ -116,7 +65,7 @@ void setupInputs()
     pinMode(PIN_BTN_ADD_PL2, INPUT);
 }
 
-void setupLCD()
+void Placarduino::setupLCD()
 {
     lcd.init();
     bigNumbers.init();
@@ -124,12 +73,12 @@ void setupLCD()
     lcd.backlight();
 }
 
-void setupBuzzer()
+void Placarduino::setupBuzzer()
 {
     buzzer.begin(PIN_BUZZER);
 }
 
-void printWelcome()
+void Placarduino::printWelcome()
 {
     lcd.clear();
 
@@ -142,12 +91,12 @@ void printWelcome()
     lcd.print("a.k.a. DAMN");
 }
 
-void playWelcome()
+void Placarduino::playWelcome()
 {
     musicPlayer.superMarioTheme();
 }
 
-void checkButtons()
+void Placarduino::checkButtons()
 {
     int player1Changed = player1.updateScore();
     int player2Changed = player2.updateScore();
@@ -162,7 +111,7 @@ void checkButtons()
     }
 }
 
-void printScore()
+void Placarduino::printScore()
 {
     lcd.clear();
 
@@ -187,7 +136,7 @@ void printScore()
     printTime();
 }
 
-void readPlayerCard()
+void Placarduino::readPlayerCard()
 {
     if (playerCard.readPlayerNameFromCard(playerToConfigure)) {
         if (playerToConfigure == &player1) {
@@ -201,19 +150,19 @@ void readPlayerCard()
     }
 }
 
-void playFeedbackPositive()
+void Placarduino::playFeedbackPositive()
 {
     musicPlayer.playNote(NOTE_C6, 140);
     musicPlayer.playNote(NOTE_C7, 480);
 }
 
-void playFeedbackNegative()
+void Placarduino::playFeedbackNegative()
 {
     musicPlayer.playNote(NOTE_C7, 140);
     musicPlayer.playNote(NOTE_C6, 480);
 }
 
-void gameOver()
+void Placarduino::gameOver()
 {
     bool hasWinner = false;
     const char *winnerName;
@@ -265,7 +214,7 @@ void gameOver()
     while (1);
 }
 
-void printTime()
+void Placarduino::printTime()
 {
     char buffer[3];
 
