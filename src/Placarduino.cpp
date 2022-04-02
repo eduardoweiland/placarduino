@@ -71,6 +71,7 @@ void checkButtons();
 void gameOver();
 void playFeedbackPositive();
 void playFeedbackNegative();
+void printTime();
 
 /*
  * SETUP
@@ -109,6 +110,7 @@ void loop()
 {
     readPlayerCard();
     checkButtons();
+    printTime();
 
     if (gameOverButton.pressed()) {
         gameOver();
@@ -194,6 +196,8 @@ void printScore()
     else {
         bigNumbers.printNumber(player2.getScore(), LCD_COLS - 3, 1);
     }
+
+    printTime();
 }
 
 void readPlayerCard()
@@ -272,4 +276,17 @@ void gameOver()
 
     wdt_enable(WDTO_4S);
     while (1);
+}
+
+void printTime()
+{
+    char buffer[3];
+
+    sprintf(buffer, "%02lu", millis() / 60000);
+    lcd.setCursor(9, 2);
+    lcd.print(buffer);
+
+    sprintf(buffer, "%02lu", millis() / 1000 % 60);
+    lcd.setCursor(9, 3);
+    lcd.print(buffer);
 }
