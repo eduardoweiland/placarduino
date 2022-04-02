@@ -27,12 +27,12 @@
 #define PIN_RFID_SS      10
 #define PIN_RFID_RESET    9
 
-#define PIN_BTN_GAME_OVER 8
+#define PIN_BTN_GAME_OVER 4
 
-#define PIN_BTN_SUB_PL1   7
+#define PIN_BTN_SUB_PL1   5
 #define PIN_BTN_ADD_PL1   6
-#define PIN_BTN_SUB_PL2   5
-#define PIN_BTN_ADD_PL2   4
+#define PIN_BTN_SUB_PL2   8
+#define PIN_BTN_ADD_PL2   7
 
 #define PIN_BUZZER        3
 
