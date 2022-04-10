@@ -10,7 +10,7 @@
 #define RFID_KEY          { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF }
 
 // BUTTONS
-#define PIN_BTN_GAME_OVER 4
+#define PIN_BTN_FRONT     4
 #define PIN_BTN_SUB_PL1   5
 #define PIN_BTN_ADD_PL1   6
 #define PIN_BTN_SUB_PL2   8

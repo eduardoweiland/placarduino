@@ -17,7 +17,7 @@ Placarduino::Placarduino() : App(),
     rfidKey RFID_KEY,
     smartCard(rfidKey, RFID_PIN_SS, RFID_PIN_RESET),
     playerCard(&smartCard, 1),
-    gameOverButton(PIN_BTN_GAME_OVER),
+    gameOverButton(PIN_BTN_FRONT),
     musicPlayer(&buzzer),
     playerToConfigure(&player1)
 {
